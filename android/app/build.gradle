@@ -1,0 +1,42 @@
+plugins {
+    id "com.android.application"
+    id 'com.google.gms.google-services' // Asegúrate de que este esté al final
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+android {
+    namespace = "com.uninova.mobileapp"
+    compileSdk = flutter.compileSdkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+    defaultConfig {
+        applicationId = "com.uninova.mobileapp"
+        minSdk = 23 // Considera bajarlo si necesitas compatibilidad con dispositivos más antiguos
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+        ndk {
+            abiFilters "armeabi-v7a", "arm64-v8a", "x86", "x86_64" // Soporta múltiples arquitecturas
+        }
+        multiDexEnabled true // Agrega esta línea si usas muchas dependencias
+    }
+
+    buildTypes {
+        release {
+            signingConfig = signingConfigs.debug // Ajusta esto según tus necesidades
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
