@@ -1,16 +1,33 @@
-# uninova_mobile
+# Uni-nova App
 
-A new Flutter project.
+![Uni-nova Logo](https://your-logo-url.com/logo.png)
 
-## Getting Started
+## Descripción
 
-This project is a starting point for a Flutter application.
+**Uni-nova** es una plataforma diseñada para conectar estudiantes y profesionales, facilitando la colaboración en proyectos académicos, la compartición de ideas y el acceso a oportunidades de desarrollo. La aplicación móvil, desarrollada en Flutter y respaldada por Firebase, permite a los usuarios crear perfiles, gestionar proyectos y conectarse con compañeros de estudios.
 
-A few resources to get you started if this is your first Flutter project:
+## Características
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **Registro y Autenticación**: Los usuarios pueden registrarse e iniciar sesión utilizando Firebase Authentication.
+- **Gestión de Proyectos**: Los usuarios pueden crear, editar y eliminar proyectos, así como invitar a otros a colaborar.
+- **Interfaz Intuitiva**: La aplicación cuenta con una interfaz amigable y fácil de usar, optimizada para una mejor experiencia del usuario.
+- **Notificaciones**: Los usuarios recibirán notificaciones sobre actualizaciones en sus proyectos y nuevas colaboraciones.
+- **Seguridad**: Priorizamos la seguridad de los datos de los usuarios utilizando las herramientas que ofrece Firebase.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Tecnologías Usadas
+
+- **Frontend**: Flutter
+- **Backend**: Firebase
+  - Firebase Authentication
+  - Firestore
+  - Firebase Cloud Messaging (para notificaciones)
+
+## Instalación
+
+Sigue estos pasos para ejecutar la aplicación localmente:
+
+1. **Clona el repositorio**:
+
+   ```bash
+   git clone https://github.com/tu-usuario/uninova-app.git
+   cd uninova-app
