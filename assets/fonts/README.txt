@@ -1,43 +1,34 @@
-Fredoka Variable Font
-=====================
+Mulish Variable Font
+====================
 
-This download contains Fredoka as both a variable font and static fonts.
+This download contains Mulish as both variable fonts and static fonts.
 
-Fredoka is a variable font with these axes:
-  wdth
+Mulish is a variable font with this axis:
   wght
 
-This means all the styles are contained in a single file:
-  Fredoka-VariableFont_wdth,wght.ttf
+This means all the styles are contained in these files:
+  Mulish-VariableFont_wght.ttf
+  Mulish-Italic-VariableFont_wght.ttf
 
 If your app fully supports variable fonts, you can now pick intermediate styles
 that aren’t available as static fonts. Not all apps support variable fonts, and
-in those cases you can use the static font files for Fredoka:
-  static/Fredoka_Condensed-Light.ttf
-  static/Fredoka_Condensed-Regular.ttf
-  static/Fredoka_Condensed-Medium.ttf
-  static/Fredoka_Condensed-SemiBold.ttf
-  static/Fredoka_Condensed-Bold.ttf
-  static/Fredoka_SemiCondensed-Light.ttf
-  static/Fredoka_SemiCondensed-Regular.ttf
-  static/Fredoka_SemiCondensed-Medium.ttf
-  static/Fredoka_SemiCondensed-SemiBold.ttf
-  static/Fredoka_SemiCondensed-Bold.ttf
-  static/Fredoka-Light.ttf
-  static/Fredoka-Regular.ttf
-  static/Fredoka-Medium.ttf
-  static/Fredoka-SemiBold.ttf
-  static/Fredoka-Bold.ttf
-  static/Fredoka_SemiExpanded-Light.ttf
-  static/Fredoka_SemiExpanded-Regular.ttf
-  static/Fredoka_SemiExpanded-Medium.ttf
-  static/Fredoka_SemiExpanded-SemiBold.ttf
-  static/Fredoka_SemiExpanded-Bold.ttf
-  static/Fredoka_Expanded-Light.ttf
-  static/Fredoka_Expanded-Regular.ttf
-  static/Fredoka_Expanded-Medium.ttf
-  static/Fredoka_Expanded-SemiBold.ttf
-  static/Fredoka_Expanded-Bold.ttf
+in those cases you can use the static font files for Mulish:
+  static/Mulish-ExtraLight.ttf
+  static/Mulish-Light.ttf
+  static/Mulish-Regular.ttf
+  static/Mulish-Medium.ttf
+  static/Mulish-SemiBold.ttf
+  static/Mulish-Bold.ttf
+  static/Mulish-ExtraBold.ttf
+  static/Mulish-Black.ttf
+  static/Mulish-ExtraLightItalic.ttf
+  static/Mulish-LightItalic.ttf
+  static/Mulish-Italic.ttf
+  static/Mulish-MediumItalic.ttf
+  static/Mulish-SemiBoldItalic.ttf
+  static/Mulish-BoldItalic.ttf
+  static/Mulish-ExtraBoldItalic.ttf
+  static/Mulish-BlackItalic.ttf
 
 Get started
 -----------

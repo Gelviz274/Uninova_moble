@@ -20,13 +20,15 @@ dependencies:
   flutter:
     sdk: flutter
 
-
+  flutter_plugin_android_lifecycle: ^2.0.23
   cupertino_icons: ^1.0.8
   ionicons: ^0.2.2
   http: ^1.2.2
   firebase_core: ^3.6.0
   firebase_auth: ^5.0.0
   cloud_firestore: ^5.4.4
+  image_picker: ^1.1.2
+  google_sign_in: ^6.2.2
 
 dev_dependencies:
 
@@ -52,13 +54,14 @@ flutter:
   uses-material-design: true
 
   fonts:
-    - family: Fredoka
+    - family: Mulish
       fonts:
-        - asset: assets/fonts/Fredoka-VariableFont_wdth,wght.ttf
+        - asset: assets/fonts/Mulish-VariableFont_wght.ttf
           weight: 400
 
   assets:
     - assets/images/logo-facebook.png
     - assets/images/Logo_uninova.png
     - assets/images/Logo_google.png
+    - assets/images/LOGOUNINOVA.png
 

@@ -1,10 +1,10 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ionicons/ionicons.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:uninova_mobile/home/user_screen.dart'; // Asegúrate de tener esta pantalla para la navegación
-import 'package:uninova_mobile/utils/constants.dart';
+import 'package:google_sign_in/google_sign_in.dart'; // Para Google Sign-In
 import 'login_screen.dart';
-// Importa tu pantalla de inicio de sesión
+import 'package:uninova_mobile/screens/home/completar_perfil.dart';
 
 class RegisterScreen extends StatelessWidget {
   RegisterScreen({super.key});
@@ -14,50 +14,173 @@ class RegisterScreen extends StatelessWidget {
   final GlobalKey<FormState> _formRegisterKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance; // Instancia de FirebaseAuth
 
-  Widget registerButton(String title, GlobalKey<FormState> formKey, BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: SizedBox(
-        width: 200,
-        child: ElevatedButton(
-          onPressed: () async {
-            if (formKey.currentState!.validate()) {
-              try {
-                // Registrar el usuario
-                UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-                  email: _emailController.text,
-                  password: _passwordController.text,
-                );
+  // FUNCIONES EXISTENTES
+  Future<void> _registerUser(BuildContext context) async {
+    if (_formRegisterKey.currentState!.validate()) {
+      try {
+        UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
 
-                // Navegar a la pantalla del usuario
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => UserView(username: _emailController.text), // Cambia esto según tu lógica
-                  ),
-                );
-              } catch (e) {
-                // Manejo de errores
-                print('Error al registrar: $e');
-              }
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            shape: const StadiumBorder(),
-            backgroundColor: kPrimaryColor,
-            elevation: 8,
-            shadowColor: Colors.black87,
+        String uid = userCredential.user!.uid;
+
+        FirebaseFirestore firestore = FirebaseFirestore.instance;
+        await firestore.collection('users').doc(uid).set({
+          'email': _emailController.text.trim(),
+          'name': '',
+          'username': '',
+          'profilePicture': '',  // Eliminado la parte de la imagen
+          'description': '',
+          'semester': '',
+          'career': '',
+          'university': '',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+
+        // Redirección a la pantalla de completar perfil
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => const CompleteProfileScreen(),
           ),
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+        );
+      } catch (e) {
+        print('Error al registrar usuario: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')),
+        );
+      }
+    }
+  }
+
+  // NUEVAS FUNCIONES AGREGADAS
+  Future<void> _signInWithGoogle(BuildContext context) async {
+    try {
+      // Autenticación con Google
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+      if (googleAuth?.accessToken != null && googleAuth?.idToken != null) {
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth!.accessToken,
+          idToken: googleAuth.idToken,
+        );
+
+        // Iniciar sesión en Firebase con las credenciales de Google
+        UserCredential userCredential = await _auth.signInWithCredential(credential);
+
+        // Verificar si el usuario es nuevo
+        if (userCredential.additionalUserInfo!.isNewUser) {
+          // Guardar detalles adicionales en Firestore
+          FirebaseFirestore firestore = FirebaseFirestore.instance;
+          await firestore.collection('users').doc(userCredential.user!.uid).set({
+            'email': userCredential.user!.email,
+            'name': userCredential.user!.displayName ?? '',
+            'username': '', // El usuario lo completará más tarde
+            'profilePicture': '',  // Eliminado la parte de la imagen
+            'description': '',
+            'semester': '',
+            'career': '',
+            'university': '',
+            'createdAt': FieldValue.serverTimestamp(),
+          });
+        }
+
+        // Navegar a la pantalla de completar perfil
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const CompleteProfileScreen(),
+          ),
+        );
+      }
+    } catch (e) {
+      print('Error al iniciar sesión con Google: $e');
+    }
+  }
+
+  Future<void> _signInWithGitHub(BuildContext context) async {
+    try {
+      // Pedir al usuario que ingrese su token de GitHub (flujo simplificado)
+      String githubToken = await _askForGitHubToken(context);
+
+      final credential = GithubAuthProvider.credential(githubToken);
+
+      // Iniciar sesión en Firebase con las credenciales de GitHub
+      UserCredential userCredential = await _auth.signInWithCredential(credential);
+
+      // Verificar si el usuario es nuevo
+      if (userCredential.additionalUserInfo!.isNewUser) {
+        FirebaseFirestore firestore = FirebaseFirestore.instance;
+        await firestore.collection('users').doc(userCredential.user!.uid).set({
+          'email': userCredential.user!.email,
+          'name': userCredential.user!.displayName ?? '',
+          'username': '',
+          'profilePicture': '',  // Eliminado la parte de la imagen
+          'description': '',
+          'semester': '',
+          'career': '',
+          'university': '',
+          'createdAt': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // Redirigir a la pantalla de completar perfil
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const CompleteProfileScreen(),
+        ),
+      );
+    } catch (e) {
+      print('Error al iniciar sesión con GitHub: $e');
+    }
+  }
+
+  Future<String> _askForGitHubToken(BuildContext context) async {
+    String token = '';
+    await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        final TextEditingController tokenController = TextEditingController();
+        return AlertDialog(
+          title: const Text('Ingresar Token de GitHub'),
+          content: TextField(
+            controller: tokenController,
+            decoration: const InputDecoration(
+              labelText: 'Token',
+              hintText: 'Ingresa tu token personal de GitHub',
             ),
           ),
-        ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                token = tokenController.text;
+                Navigator.of(context).pop();
+              },
+              child: const Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
+    return token;
+  }
+
+  // BOTONES PARA GOOGLE Y GITHUB
+  Widget socialLoginButton(String title, IconData icon, Color color, VoidCallback onPressed) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 20),
+        shape: const StadiumBorder(),
+        backgroundColor: color,
+        elevation: 5,
+      ),
+      icon: Icon(icon, color: Colors.white),
+      label: Text(
+        title,
+        style: const TextStyle(color: Colors.white, fontSize: 16),
       ),
     );
   }
@@ -78,7 +201,7 @@ class RegisterScreen extends StatelessWidget {
     return Scaffold(
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 40),
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 20),
           child: SingleChildScrollView(
             child: Column(
               children: [
@@ -104,7 +227,7 @@ class RegisterScreen extends StatelessWidget {
                 Container(
                   margin: const EdgeInsets.only(bottom: 20),
                   child: const Text(
-                    'Bienvenido a Uninova',
+                    'Bienvenido a Uni-nova',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.brown,
@@ -139,9 +262,13 @@ class RegisterScreen extends StatelessWidget {
                             borderSide: const BorderSide(color: Colors.red, width: 2.0),
                             borderRadius: BorderRadius.circular(10.0),
                           ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 10),
                       TextFormField(
                         controller: _passwordController,
                         validator: (value) {
@@ -157,10 +284,9 @@ class RegisterScreen extends StatelessWidget {
                             fontWeight: FontWeight.bold,
                             color: Colors.brown,
                           ),
-                          hintText: 'Password123',
                           prefixIcon: const Icon(Ionicons.lock_closed, color: Colors.brown),
                           enabledBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(color: Colors.brown, width: 0.8),
+                            borderSide: const BorderSide(color: Colors.brown, width: 1.0),
                             borderRadius: BorderRadius.circular(10.0),
                           ),
                           focusedBorder: OutlineInputBorder(
@@ -171,47 +297,56 @@ class RegisterScreen extends StatelessWidget {
                             borderSide: const BorderSide(color: Colors.red, width: 2.0),
                             borderRadius: BorderRadius.circular(10.0),
                           ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      registerButton('Registrar', _formRegisterKey, context),
-                      const SizedBox(height: 20),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => LoginScreen(), // Navega a la pantalla de inicio de sesión
-                            ),
-                          );
-                        },
-                        child:
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Text(
-                              '¿Ya tienes una cuenta?',
-                              style: TextStyle(
-                                color: kPrimaryColor,
-                                fontSize: 17,
-
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            const SizedBox( width: 4,),
-                            const Text(
-                              'Iniciar sesión',
-                              style: TextStyle(
-                                color: kPrimaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 17,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                      ElevatedButton(
+                        onPressed: () => _registerUser(context),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 50),
+                          shape: const StadiumBorder(),
+                          backgroundColor: Colors.brown,
+                          elevation: 5,
+                        ),
+                        child: const Text(
+                          'Registrarme',
+                          style: TextStyle(color: Colors.white, fontSize: 16),
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      socialLoginButton(
+                        'Iniciar sesión con Google',
+                        Ionicons.logo_google,
+                        Colors.red,
+                            () => _signInWithGoogle(context),
+                      ),
+                      const SizedBox(height: 10),
+                      socialLoginButton(
+                        'Iniciar sesión con GitHub',
+                        Ionicons.logo_github,
+                        Colors.black,
+                            () => _signInWithGitHub(context),
+                      ),
+                      const SizedBox(height: 20),
                     ],
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => LoginScreen(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'Ya tienes cuenta? Inicia sesión',
+                    style: TextStyle(color: Colors.black),
                   ),
                 ),
               ],

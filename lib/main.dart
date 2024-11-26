@@ -1,11 +1,13 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Importa FirebaseAuth
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:uninova_mobile/screens/index/home.dart';
-import 'utils/constants.dart';
-import 'screens/Auth/login_screen.dart'; // Asegúrate de tener este archivo
-import 'screens/Auth/register_screen.dart'; // Asegúrate de tener este archivo
-import 'home/user_screen.dart'; // Importa la nueva pantalla
+import 'package:uninova_mobile/screens/Auth/register_screen.dart';
+import 'package:uninova_mobile/screens/home/completar_perfil.dart'; // Si la usas para el perfil
+import 'package:uninova_mobile/utils/constants.dart';
+import 'package:uninova_mobile/utils/routes.dart';
+import 'package:uninova_mobile/screens/Auth/login_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,13 +24,20 @@ class MyApp extends StatelessWidget {
       title: 'Uninova App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        scaffoldBackgroundColor: kBackgroudColor, // Color de fondo
+        scaffoldBackgroundColor: kBackgroudColor,
         textTheme: Theme.of(context).textTheme.apply(
             bodyColor: kPrimaryColor,
-            fontFamily: 'Fredoka'), // Colores de texto
+            fontFamily: 'Mulish'),
         useMaterial3: true,
       ),
-      home: AuthCheck(), // Cambia la pantalla inicial a AuthCheck
+      // Definir las rutas aquí
+      routes: {
+        AppRoutes.login: (context) => LoginScreen(),
+        AppRoutes.register: (context) => RegisterScreen(),
+        AppRoutes.completeProfile: (context) => const CompleteProfileScreen(),
+        AppRoutes.userScreen: (context) => HomeScreen(), // Ruta para HomeScreen
+      },
+      home: AuthCheck(),
     );
   }
 }
@@ -41,14 +50,16 @@ class AuthCheck extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      stream: _auth.authStateChanges(), // Escucha los cambios en el estado de autenticación
+      stream: _auth.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator()); // Muestra un indicador de carga mientras se espera
+          return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasData) {
-          return HomeScreen(); // Usuario autenticado, redirige a la pantalla del usuario
+          // Si el usuario está autenticado, redirige a HomeScreen
+          return HomeScreen();
         } else {
-          return RegisterScreen(); // Usuario no autenticado, redirige a la pantalla de registro
+          // Si el usuario no está autenticado, redirige a RegisterScreen
+          return RegisterScreen();
         }
       },
     );

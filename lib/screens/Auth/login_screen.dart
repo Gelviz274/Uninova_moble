@@ -28,7 +28,7 @@ class LoginScreen extends StatelessWidget {
                   password: _passwordController.text,
                 );
 
-                // Si las credenciales son correctas, redirigir a home.dart
+                // Si las credenciales son correctas, redirigir a completar_perfil.dart
                 Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -98,7 +98,7 @@ class LoginScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 const Text(
-                  'Bienvenido de nuevo a Uninova',
+                  'Bienvenido de nuevo a Uni-nova',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.brown,
